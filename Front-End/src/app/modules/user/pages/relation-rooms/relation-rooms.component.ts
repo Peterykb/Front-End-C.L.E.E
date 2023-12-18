@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { reservas_salas } from 'src/app/models/reserva_salas';
 import { reserva_equip } from 'src/app/models/reserva_equips';
 import { ReserveService } from 'src/app/services/reserve.service';
+import { EMPTY } from 'rxjs';
 
 @Component({
   selector: 'app-relation-rooms',
@@ -27,6 +28,7 @@ export class RelationRoomsComponent {
     this.reservasService.getReservasSalas().subscribe(
       (reservas: reservas_salas[]) => {
         this.reservasSalas = reservas;
+        console.log(reservas)
       },
       (error) => {
         console.error('Erro ao carregar reservas de salas:', error);
@@ -36,6 +38,7 @@ export class RelationRoomsComponent {
     this.reservasService.getReservasEquipamentos().subscribe(
       (reservas: reserva_equip[]) => {
         this.reservasEquipamentos = reservas;
+        console.log(reservas)
       },
       (error) => {
         console.error('Erro ao carregar reservas de equipamentos:', error);
@@ -44,7 +47,15 @@ export class RelationRoomsComponent {
   }
 
   get filteredReservas(): any[] {
-    return this.selectedRoom === 'room1' ? this.reservasSalas : this.reservasEquipamentos;
+    if(this.selectedRoom === 'room1')
+    {return this.reservasSalas;
+    }else if(this.selectedRoom === 'room2'){
+      return this.reservasEquipamentos;
+    }
+    else{
+      return [];
+    }
+  
   }
 
   get totalPages() {
