@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
-import { PopupService } from 'src/app/services/popup.service';
 
 
 @Component({
@@ -14,13 +13,10 @@ import { PopupService } from 'src/app/services/popup.service';
 export class LoginComponent implements OnInit {
   loginForm: any;
   showPass: boolean = false;
-  success: boolean = false;
-  errorCad: boolean = false;
   constructor(
     private loginBuilder: FormBuilder,
     private router: Router,
-    private authService: AuthService,
-    public popupService: PopupService
+    private authService: AuthService
   ) {
     this.loginForm = loginBuilder.group({
       name: ['', [Validators.required]],
@@ -36,13 +32,10 @@ export class LoginComponent implements OnInit {
     this.authService.login({name: name, password: password}).subscribe(
       response => {
         this.router.navigate(['/user']);
-
+        
       },
       error =>{
         console.error('Erro ao fazer login!', error);
-        this.success = false;
-        this.errorCad = true
-        this.popupService.addMessage('As credenciais estão incorretas!')
       }
     )
   }

@@ -9,7 +9,6 @@ import { CreateEquipamentoComponent } from './pages/create-equipamento/create-eq
 import { ViewReserveComponent } from './pages/view-reserve/view-reserve.component';
 import { ViewRoomsComponent } from './pages/view-rooms/view-rooms.component';
 import { ViewEquipsComponent } from './pages/view-equips/view-equips.component';
-import { HomeComponent } from './pages/home/home.component';
 
 
 @NgModule({
@@ -20,7 +19,6 @@ import { HomeComponent } from './pages/home/home.component';
     ViewReserveComponent,
     ViewRoomsComponent,
     ViewEquipsComponent,
-    HomeComponent,
   ],
   imports: [
     CommonModule,

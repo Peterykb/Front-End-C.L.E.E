@@ -24,10 +24,6 @@ import { AuthService } from './auth.service';
     const headers = this.addAuthorizationHeader();
     return this.http.get<any>(`${this.apiUrl}/reserva_salas/view`, { headers });
   }
-  getReservaSala(id: string): Observable<any> {
-    const headers = this.addAuthorizationHeader();
-    return this.http.get<any>(`${this.apiUrl}/reserva_salas/searchbycod`, {headers})
-  }
 
   getReservasEquipamentos(): Observable<any> {
     const headers = this.addAuthorizationHeader();
@@ -40,6 +36,6 @@ import { AuthService } from './auth.service';
   }
   createReservaEquip(reserva: reserva_equip){
     const headers = this.addAuthorizationHeader();
-    return this.http.post<any>(`${this.apiUrl}/reserva_equip/create`, reserva,{headers} )
+    return this.http.post<any> (`${this.apiUrl}/create`, reserva,{headers} )
   }
 }

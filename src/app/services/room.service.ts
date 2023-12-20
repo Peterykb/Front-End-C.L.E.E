@@ -35,9 +35,8 @@ export class RoomService {
     return this.http.put<any>(`${this.apiUrl}/salas/update/`, sala, { headers });
   }
 
-  excluirSala(idSala: string): Observable<any> {
+  excluirSala(sala: salas): Observable<any> {
     const headers = this.addAuthorizationHeader();
-    return this.http.put<any>(`${this.apiUrl}/salas/delete/${idSala}`, {}, { headers });
+    return this.http.put<any>(`${this.apiUrl}/salas/delete/`, sala, { headers });
   }
-
 }
