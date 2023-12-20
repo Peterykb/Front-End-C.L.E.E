@@ -16,7 +16,9 @@ export class ReserveComponent implements OnInit {
   showEquipamentos: boolean = false;
   reservaRoomForm!: FormGroup;
   reservaEquipamentoForm!: FormGroup;
-  id_equip: string = ''
+  id_rota: string = '';
+  nome_rota: string = '';
+  reservationType: string = '';
 
   success: boolean = false;
   errorCad: boolean = false;
@@ -29,10 +31,30 @@ export class ReserveComponent implements OnInit {
   equipamentos: any[] = [];
 
   ngOnInit(): void {
-    this.route.params.subscribe( params =>{
-    this.id_equip = params['id'];
-    } )
+    this.route.params.subscribe(params => {
+      this.id_rota = params['id'];
+      this.nome_rota = params['name'];
+    });
+
+    this.route.data.subscribe(data => {
+      this.reservationType = data['type']; // Obtendo o tipo de reserva
+    });
+
+    if (this.id_rota && this.nome_rota && this.reservationType) {
+      if (this.reservationType === 'room') {
+        this.reservaRoomForm.patchValue({
+          cod_sala: this.nome_rota
+        });
+        this.formSala()
+      } else if (this.reservationType === 'equip') {
+        this.reservaEquipamentoForm.patchValue({
+          cod_equip: this.nome_rota
+        });
+        this.formEquipamentos()
+      }
+    }
   }
+
 
   constructor(
     private formBuilder: FormBuilder,
@@ -58,8 +80,10 @@ export class ReserveComponent implements OnInit {
       date_entrega: [''],
       hora_entrega: [''],
       cod_user: [''],
-      desc: ['']
+      desc: [''],
+
     });
+
   }
 
   formSala() {
@@ -67,25 +91,45 @@ export class ReserveComponent implements OnInit {
     this.showEquipamentos = false;
   }
 
+
+
   formEquipamentos() {
     this.showSala = false;
     this.showEquipamentos = true;
   }
 
-  adicionarEquipamento() {
-    const equipamentoData = this.reservaEquipamentoForm.value;
-
-    this.equipamentos.push(equipamentoData);
-
-    this.reservaEquipamentoForm.reset();
+  formatarData(event: Event,  campo: string): void {
+    const input = event.target as HTMLInputElement;
+    let valor = input.value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+    if (valor.length > 8) {
+      valor = valor.slice(0, 8); // Limita o tamanho máximo da data
+    }
+    if (valor.length > 4) {
+      valor = valor.replace(/^(\d{2})(\d{2})(\d{0,4})/, '$1/$2/$3'); // Aplica a máscara DD/MM/AAAA
+    } else if (valor.length > 2) {
+      valor = valor.replace(/^(\d{2})(\d{0,2})/, '$1/$2'); // Aplica a máscara DD/MM
+    }
+    this.reservaEquipamentoForm.get(campo)?.patchValue(valor); // Atualiza o valor no formulário
   }
 
-  removerEquipamento(index: number) {
-    this.equipamentos.splice(index, 1);
+  formatarHora(event: Event, campo: string): void {
+    const input = event.target as HTMLInputElement;
+    let valor = input.value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+    if (valor.length > 4) {
+      valor = valor.slice(0, 4); // Limita o tamanho máximo da hora
+    }
+    if (valor.length > 2) {
+      valor = valor.replace(/^(\d{2})(\d{0,2})/, '$1:$2'); // Aplica a máscara HH:MM
+    }
+    this.reservaEquipamentoForm.get(campo)?.patchValue(valor); // Atualiza o valor no formulário
   }
 
   createReserveRoom() {
-    if (this.reservaRoomForm.valid) {
+    // if (this.reservaRoomForm.valid && this.nome_rota != null) {
+
+    // }
+
+    if(this.reservaRoomForm.valid){
       const reservaData: reservas_salas= {
         cod_sala: this.reservaRoomForm.get('cod_sala')!.value,
         cod_user: this.reservaRoomForm.get('cod_user')!.value,
@@ -101,7 +145,7 @@ export class ReserveComponent implements OnInit {
           this.success = true;
           this.errorCad = false;
           this.popupService.addMessage('Sala reservada com sucesso!');
-          this.reservaRoomForm.reset();
+        
         },
         (error) => {
           this.success = false;
@@ -118,18 +162,37 @@ export class ReserveComponent implements OnInit {
   }
 
   createReserveEquipamento() {
-    if(this.reservaEquipamentoForm.valid){
+    if (this.reservaEquipamentoForm.valid) {
       const reservaEquip: reserva_equip = {
         cod_equip: this.reservaEquipamentoForm.get('cod_equip')!.value,
         cod_user: this.reservaEquipamentoForm.get('cod_user')!.value,
         date_entrega: this.reservaEquipamentoForm.get('date_entrega')!.value,
-        date_reserva: this.reservaEquipamentoForm.get('date_reserva')!.value,
+        date_reserv: this.reservaEquipamentoForm.get('date_reserva')!.value,
         desc: this.reservaEquipamentoForm.get('desc')!.value,
         hora_entrega: this.reservaEquipamentoForm.get('hora_entrega')!.value,
         hora_reserva: this.reservaEquipamentoForm.get('hora_reserva')!.value,
         qnt_equip: this.reservaEquipamentoForm.get('qnt_equip')!.value
-      }
-       this.reserveService.createReservaEquip(reservaEquip)
+      };
+
+      this.reserveService.createReservaEquip(reservaEquip).subscribe(
+        (response) => {
+          this.success = true;
+          this.errorCad = false;
+          this.popupService.addMessage('Sala reservada com sucesso!');
+          this.reservaEquipamentoForm.reset();
+        },
+        (error) => {
+          this.success = false;
+          this.errorCad = true;
+          this.popupService.addMessage('Ocorreu um erro ao reservar a sala.');
+          console.error(error);
+        }
+      );
+    } else {
+      this.success = false;
+      this.errorCad = true;
+      this.popupService.addMessage('Preencha todos os campos corretamente!');
     }
   }
+
 }
